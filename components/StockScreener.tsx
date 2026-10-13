@@ -118,16 +118,18 @@ export const SCREENER_STOCKS: ScreenerStock[] = [
 
 interface StockScreenerProps {
   onAnalyzeStock: (stock: ScreenerStock) => void;
+  stocks?: ScreenerStock[];
 }
 
-export function StockScreener({ onAnalyzeStock }: StockScreenerProps) {
+export function StockScreener({ onAnalyzeStock, stocks }: StockScreenerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState<string>('All');
   const [sortBy, setSortBy] = useState<'yield' | 'pe' | 'cagr'>('yield');
 
+  const stockList = stocks && stocks.length > 0 ? stocks : SCREENER_STOCKS;
   const sectors = ['All', 'FMCG', 'Information Tech', 'PSU Energy', 'Energy & Retail', 'Banking'];
 
-  const filteredStocks = SCREENER_STOCKS.filter((stock) => {
+  const filteredStocks = stockList.filter((stock) => {
     const matchesSearch =
       stock.sym.toLowerCase().includes(searchTerm.toLowerCase()) ||
       stock.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -287,7 +289,7 @@ export function StockScreener({ onAnalyzeStock }: StockScreenerProps) {
                   <button
                     type="button"
                     onClick={() => onAnalyzeStock(stock)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-sm shadow-emerald-600/20 cursor-pointer active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-3d-emerald font-bold text-xs transition-all cursor-pointer"
                   >
                     <Sparkles className="w-3 h-3" />
                     <span>Analyze with AI</span>

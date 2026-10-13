@@ -97,7 +97,7 @@ export function SipCalculator({
           {onAnalyzeWithAi && (
             <button
               onClick={handleSendToAi}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-3.5 py-1.5 btn-3d-emerald rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Analyze Plan with AI</span>

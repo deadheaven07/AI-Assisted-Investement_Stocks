@@ -282,7 +282,7 @@ export function ChatWindow({ profile, initialQuery, onSelectTab }: ChatWindowPro
   };
 
   return (
-    <div className="flex flex-col h-[760px] bg-white border border-slate-200/90 rounded-2xl shadow-card hover:shadow-elevated transition-all overflow-hidden">
+    <div className="flex flex-col h-[760px] card-3d rounded-2xl overflow-hidden">
       {/* Top Header bar */}
       <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-50/90 via-white to-slate-50/90 border-b border-slate-200/80">
         <div className="flex items-center gap-3">
@@ -495,7 +495,7 @@ export function ChatWindow({ profile, initialQuery, onSelectTab }: ChatWindowPro
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="h-[52px] px-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shrink-0 shadow-sm shadow-emerald-600/25 active:scale-95"
+            className="h-[52px] px-5 btn-3d-emerald disabled:opacity-50 disabled:pointer-events-none rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
           >
             {isLoading ? (
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

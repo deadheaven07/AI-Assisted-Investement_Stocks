@@ -1,4 +1,4 @@
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
 import {
   StockQuote,
   StockFundamentals,
@@ -9,12 +9,15 @@ import {
 } from '../types';
 import { MarketDataProvider } from '../provider';
 
+// Instantiate YahooFinance client instance (required in v3/v4)
+const yf = new (YahooFinance as any)({ suppressNotices: ['yahooSurvey'] });
+
 export class YahooMarketDataProvider implements MarketDataProvider {
   readonly name = 'yahoo';
 
   private formatIndianSymbol(symbol: string): string {
     const clean = symbol.trim().toUpperCase();
-    if (clean.endsWith('.NS') || clean.endsWith('.BO')) {
+    if (clean.endsWith('.NS') || clean.endsWith('.BO') || clean.startsWith('^') || clean.includes('=')) {
       return clean;
     }
     // Default to NSE (.NS) for Indian equities
@@ -24,11 +27,7 @@ export class YahooMarketDataProvider implements MarketDataProvider {
   async getQuote(symbol: string): Promise<StockQuote> {
     const formatted = this.formatIndianSymbol(symbol);
     try {
-      // Suppress console notice from yahoo-finance2
-      // @ts-expect-error yahoo-finance2 suppressNotices
-      yahooFinance.suppressNotices?.(['yahooSurvey']);
-
-      const q = (await yahooFinance.quote(formatted)) as any;
+      const q = (await yf.quote(formatted)) as any;
       if (!q || !q.regularMarketPrice) {
         throw new Error('No quote data');
       }
@@ -70,7 +69,7 @@ export class YahooMarketDataProvider implements MarketDataProvider {
   async getFundamentals(symbol: string): Promise<StockFundamentals> {
     const formatted = this.formatIndianSymbol(symbol);
     try {
-      const summary = (await yahooFinance.quoteSummary(formatted, {
+      const summary = (await yf.quoteSummary(formatted, {
         modules: ['summaryDetail', 'defaultKeyStatistics', 'financialData'],
       })) as any;
 
@@ -131,7 +130,7 @@ export class YahooMarketDataProvider implements MarketDataProvider {
       const fiveYearsAgo = new Date();
       fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 6);
 
-      const events = (await yahooFinance.historical(formatted, {
+      const events = (await yf.historical(formatted, {
         period1: fiveYearsAgo,
         period2: new Date(),
         events: 'dividends',
@@ -192,7 +191,7 @@ export class YahooMarketDataProvider implements MarketDataProvider {
           break;
       }
 
-      const historical = (await yahooFinance.historical(formatted, {
+      const historical = (await yf.historical(formatted, {
         period1: past,
         period2: now,
       })) as any[];
