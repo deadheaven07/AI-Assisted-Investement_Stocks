@@ -5,6 +5,7 @@ import { UserProfile } from '@/lib/types';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ChatWindow } from '@/components/ChatWindow';
 import { SipCalculator } from '@/components/SipCalculator';
+import { StockScreener, ScreenerStock } from '@/components/StockScreener';
 import {
   TrendingUp,
   BarChart3,
@@ -14,10 +15,11 @@ import {
   Sparkles,
   ArrowUpRight,
   ArrowDownRight,
-  ChevronRight,
-  Flame,
   Award,
-  Zap,
+  Layers,
+  Sliders,
+  ChevronRight,
+  Coins,
 } from 'lucide-react';
 
 interface MonitoredStock {
@@ -110,16 +112,21 @@ const MONITORED_STOCKS: MonitoredStock[] = [
 
 export default function Home() {
   const [profile, setProfile] = useState<UserProfile | undefined>();
-  const [activeTab, setActiveTab] = useState<'chat' | 'calculator'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'calculator' | 'screener'>('chat');
   const [selectedStock, setSelectedStock] = useState<MonitoredStock>(MONITORED_STOCKS[0]);
   const [externalQuery, setExternalQuery] = useState<string | undefined>();
 
-  const triggerStockAnalysis = (stock: MonitoredStock) => {
+  const triggerStockAnalysis = (stock: MonitoredStock | ScreenerStock) => {
     setActiveTab('chat');
     setExternalQuery(
       `Analyze ${stock.sym} (${stock.name}): verify dividend yield (${stock.yield}), payout safety (${stock.payout}), P/E valuation (${stock.pe}), and recommend a buying schedule.`
     );
-    // Reset query trigger after dispatch
+    setTimeout(() => setExternalQuery(undefined), 100);
+  };
+
+  const handleAnalyzeFromSip = (sipPrompt: string) => {
+    setActiveTab('chat');
+    setExternalQuery(sipPrompt);
     setTimeout(() => setExternalQuery(undefined), 100);
   };
 
@@ -200,7 +207,7 @@ export default function Home() {
             <div className="bg-slate-100/90 border border-slate-200 p-1 rounded-2xl flex gap-1 shadow-2xs">
               <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'chat'
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
@@ -209,9 +216,10 @@ export default function Home() {
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>AI Research</span>
               </button>
+
               <button
                 onClick={() => setActiveTab('calculator')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'calculator'
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
@@ -220,11 +228,23 @@ export default function Home() {
                 <BarChart3 className="w-3.5 h-3.5" />
                 <span>SIP Engine</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('screener')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'screener'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                }`}
+              >
+                <Coins className="w-3.5 h-3.5" />
+                <span>Screener</span>
+              </button>
             </div>
 
             <div className="hidden lg:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs">
               <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Data Engine Active</span>
+              <span>Data Feeds Online</span>
             </div>
           </div>
         </div>
@@ -232,139 +252,154 @@ export default function Home() {
 
       {/* 3. Main Dashboard Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Investor Profile & Monitored Stocks */}
-          <div className="lg:col-span-4 space-y-6">
-            <ProfileForm onProfileChange={(p) => setProfile(p)} />
+        {activeTab === 'chat' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Column: Investor Profile & Monitored Stocks */}
+            <div className="lg:col-span-4 space-y-5">
+              <ProfileForm onProfileChange={(p) => setProfile(p)} />
 
-            {/* Interactive Stock Inspector Card */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-card hover:shadow-elevated transition-shadow">
-              <div className="flex items-center justify-between mb-3.5 pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                    <Award className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-900">Monitored Indian Stocks</span>
-                    <p className="text-[10px] text-slate-500 font-medium">Click to inspect or analyze</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                  6 Tracked
-                </span>
-              </div>
-
-              {/* Stock Chips */}
-              <div className="grid grid-cols-3 gap-1.5 mb-4">
-                {MONITORED_STOCKS.map((s) => {
-                  const isSelected = selectedStock.sym === s.sym;
-                  return (
-                    <button
-                      key={s.sym}
-                      type="button"
-                      onClick={() => setSelectedStock(s)}
-                      className={`p-2 rounded-xl text-left transition-all cursor-pointer border ${
-                        isSelected
-                          ? 'bg-emerald-50 border-emerald-500 shadow-2xs'
-                          : 'bg-slate-50 border-slate-200/70 hover:bg-slate-100/60'
-                      }`}
-                    >
-                      <div className="font-black text-xs text-slate-900 leading-none">
-                        {s.sym}
-                      </div>
-                      <div className="text-[10px] font-mono text-emerald-700 font-bold mt-1">
-                        {s.yield}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Selected Stock Live Card */}
-              {selectedStock && (
-                <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-black text-sm text-slate-900">
-                          {selectedStock.sym}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px]">
-                          {selectedStock.name}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-medium">
-                        {selectedStock.tag}
-                      </div>
+              {/* Interactive Stock Inspector Card */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-card hover:shadow-elevated transition-shadow">
+                <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                      <Award className="w-3.5 h-3.5" />
                     </div>
-                    <div className="text-right">
-                      <div className="font-mono font-bold text-xs text-slate-900">
-                        {selectedStock.price}
-                      </div>
-                      <div
-                        className={`text-[10px] font-mono font-bold ${
-                          selectedStock.isPositive ? 'text-emerald-600' : 'text-rose-600'
+                    <div>
+                      <span className="text-xs font-bold text-slate-900">Monitored Indian Stocks</span>
+                      <p className="text-[10px] text-slate-500 font-medium">Click to inspect or analyze</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    6 Tracked
+                  </span>
+                </div>
+
+                {/* Stock Chips */}
+                <div className="grid grid-cols-3 gap-1.5 mb-3.5">
+                  {MONITORED_STOCKS.map((s) => {
+                    const isSelected = selectedStock.sym === s.sym;
+                    return (
+                      <button
+                        key={s.sym}
+                        type="button"
+                        onClick={() => setSelectedStock(s)}
+                        className={`p-2 rounded-xl text-left transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-emerald-50 border-emerald-500 shadow-2xs ring-1 ring-emerald-500/20'
+                            : 'bg-slate-50 border-slate-200/70 hover:bg-slate-100/60'
                         }`}
                       >
-                        {selectedStock.change}
+                        <div className="font-black text-xs text-slate-900 leading-none">
+                          {s.sym}
+                        </div>
+                        <div className="text-[10px] font-mono text-emerald-700 font-bold mt-1">
+                          {s.yield}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected Stock Live Card */}
+                {selectedStock && (
+                  <div className="p-3.5 rounded-xl bg-slate-50/90 border border-slate-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-black text-sm text-slate-900">
+                            {selectedStock.sym}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px]">
+                            {selectedStock.name}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-medium">
+                          {selectedStock.tag}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-mono font-bold text-xs text-slate-900">
+                          {selectedStock.price}
+                        </div>
+                        <div
+                          className={`text-[10px] font-mono font-bold ${
+                            selectedStock.isPositive ? 'text-emerald-600' : 'text-rose-600'
+                          }`}
+                        >
+                          {selectedStock.change}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-1.5 my-2.5 text-center">
-                    <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Yield</span>
-                      <span className="text-[11px] font-mono font-bold text-emerald-700">
-                        {selectedStock.yield}
-                      </span>
+                    <div className="grid grid-cols-4 gap-1.5 my-2.5 text-center">
+                      <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block">Yield</span>
+                        <span className="text-[11px] font-mono font-bold text-emerald-700">
+                          {selectedStock.yield}
+                        </span>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block">Payout</span>
+                        <span className="text-[11px] font-mono font-bold text-slate-800">
+                          {selectedStock.payout}
+                        </span>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block">5Y CAGR</span>
+                        <span className="text-[11px] font-mono font-bold text-indigo-700">
+                          {selectedStock.cagr}
+                        </span>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block">P/E</span>
+                        <span className="text-[11px] font-mono font-bold text-slate-800">
+                          {selectedStock.pe}
+                        </span>
+                      </div>
                     </div>
-                    <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Payout</span>
-                      <span className="text-[11px] font-mono font-bold text-slate-800">
-                        {selectedStock.payout}
-                      </span>
-                    </div>
-                    <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase block">5Y CAGR</span>
-                      <span className="text-[11px] font-mono font-bold text-indigo-700">
-                        {selectedStock.cagr}
-                      </span>
-                    </div>
-                    <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase block">P/E</span>
-                      <span className="text-[11px] font-mono font-bold text-slate-800">
-                        {selectedStock.pe}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* 1-Click AI trigger */}
-                  <button
-                    type="button"
-                    onClick={() => triggerStockAnalysis(selectedStock)}
-                    className="w-full mt-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Analyze {selectedStock.sym} with AI Desk</span>
-                  </button>
-                </div>
-              )}
+                    {/* 1-Click AI trigger */}
+                    <button
+                      type="button"
+                      onClick={() => triggerStockAnalysis(selectedStock)}
+                      className="w-full mt-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Analyze {selectedStock.sym} with AI Desk</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Chat Window */}
+            <div className="lg:col-span-8">
+              <ChatWindow
+                profile={profile}
+                initialQuery={externalQuery}
+                onSelectTab={setActiveTab}
+              />
             </div>
           </div>
+        )}
 
-          {/* Right Column: Chat Window or SIP Calculator */}
-          <div className="lg:col-span-8">
-            {activeTab === 'chat' ? (
-              <ChatWindow profile={profile} initialQuery={externalQuery} />
-            ) : (
-              <SipCalculator
-                initialLumpSum={profile?.lumpSum}
-                initialMonthlySip={profile?.monthlyAmount}
-                initialHorizon={profile?.horizonYears}
-              />
-            )}
+        {activeTab === 'calculator' && (
+          <div className="max-w-5xl mx-auto">
+            <SipCalculator
+              initialLumpSum={profile?.lumpSum}
+              initialMonthlySip={profile?.monthlyAmount}
+              initialHorizon={profile?.horizonYears}
+              onAnalyzeWithAi={handleAnalyzeFromSip}
+            />
           </div>
-        </div>
+        )}
+
+        {activeTab === 'screener' && (
+          <div className="max-w-6xl mx-auto">
+            <StockScreener onAnalyzeStock={triggerStockAnalysis} />
+          </div>
+        )}
       </main>
 
       {/* 4. Persistent Compliance Footer */}
@@ -384,3 +419,4 @@ export default function Home() {
     </div>
   );
 }
+

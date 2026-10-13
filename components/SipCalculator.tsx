@@ -20,30 +20,41 @@ import {
   Clock,
   Sparkles,
   ArrowUpRight,
+  TrendingUp,
+  Percent,
 } from 'lucide-react';
 
 interface SipCalculatorProps {
   initialLumpSum?: number;
   initialMonthlySip?: number;
   initialHorizon?: number;
+  onAnalyzeWithAi?: (prompt: string) => void;
 }
 
 export function SipCalculator({
-  initialLumpSum = 100000,
-  initialMonthlySip = 10000,
+  initialLumpSum = 200000,
+  initialMonthlySip = 15000,
   initialHorizon = 10,
+  onAnalyzeWithAi,
 }: SipCalculatorProps) {
   const [mounted, setMounted] = useState(false);
   const [lumpSum, setLumpSum] = useState<number>(initialLumpSum);
   const [monthlySip, setMonthlySip] = useState<number>(initialMonthlySip);
   const [horizonYears, setHorizonYears] = useState<number>(initialHorizon);
   const [badRate, setBadRate] = useState<number>(6);
-  const [normalRate, setNormalRate] = useState<number>(11);
+  const [normalRate, setNormalRate] = useState<number>(12);
   const [goodRate, setGoodRate] = useState<number>(15);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Sync if profile props update
+  useEffect(() => {
+    if (initialLumpSum !== undefined) setLumpSum(initialLumpSum);
+    if (initialMonthlySip !== undefined) setMonthlySip(initialMonthlySip);
+    if (initialHorizon !== undefined) setHorizonYears(initialHorizon);
+  }, [initialLumpSum, initialMonthlySip, initialHorizon]);
 
   const data = useMemo(() => {
     return generateSipProjection({
@@ -58,8 +69,14 @@ export function SipCalculator({
 
   const finalYear = data[data.length - 1];
 
+  const handleSendToAi = () => {
+    if (!onAnalyzeWithAi || !finalYear) return;
+    const prompt = `Review my SIP and Lump Sum plan: Initial Lump Sum ${formatINR(lumpSum)}, Monthly SIP ${formatINR(monthlySip)}, over ${horizonYears} years. Target normal corpus is ${formatINR(finalYear.normalCase)} at ${normalRate}% CAGR (invested ${formatINR(finalYear.totalInvested)}). What specific Indian dividend aristocrats, growth leaders, and index ETFs should I allocate to reach this target while managing risk?`;
+    onAnalyzeWithAi(prompt);
+  };
+
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-card hover:shadow-elevated transition-shadow">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-card hover:shadow-elevated transition-all">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-slate-100 gap-3">
         <div className="flex items-center gap-3">
@@ -67,18 +84,30 @@ export function SipCalculator({
             <Calculator className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              SIP &amp; Lump Sum Growth Engine
+            <h2 className="text-base font-black text-slate-900 tracking-tight">
+              SIP &amp; Wealth Growth Simulator
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Deterministic monthly compounding math &bull; Annuity Due
+              Deterministic monthly compounding math &bull; Annuity Due Formula
             </p>
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200/80 self-start sm:self-auto">
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-          Illustrative only, not a prediction
+        <div className="flex items-center gap-2">
+          {onAnalyzeWithAi && (
+            <button
+              onClick={handleSendToAi}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Analyze Plan with AI</span>
+            </button>
+          )}
+
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold border border-slate-200">
+            <AlertTriangle className="w-3 h-3 text-amber-600" />
+            <span>Illustrative Math</span>
+          </div>
         </div>
       </div>
 
@@ -98,8 +127,8 @@ export function SipCalculator({
           <input
             type="range"
             min="0"
-            max="2000000"
-            step="10000"
+            max="2500000"
+            step="25000"
             value={lumpSum}
             onChange={(e) => setLumpSum(Number(e.target.value))}
             className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
@@ -107,7 +136,23 @@ export function SipCalculator({
           <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
             <span>₹0</span>
             <span>₹10L</span>
-            <span>₹20L</span>
+            <span>₹25L</span>
+          </div>
+          <div className="flex gap-1 mt-2">
+            {[50000, 100000, 200000, 500000].map((amt) => (
+              <button
+                key={amt}
+                type="button"
+                onClick={() => setLumpSum(amt)}
+                className={`text-[9px] flex-1 py-0.5 rounded font-bold transition-all cursor-pointer ${
+                  lumpSum === amt
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                ₹{(amt / 100000).toFixed(amt >= 100000 ? 0 : 1)}L
+              </button>
+            ))}
           </div>
         </div>
 
@@ -136,6 +181,22 @@ export function SipCalculator({
             <span>₹75k</span>
             <span>₹1.5L</span>
           </div>
+          <div className="flex gap-1 mt-2">
+            {[5000, 10000, 15000, 25000].map((amt) => (
+              <button
+                key={amt}
+                type="button"
+                onClick={() => setMonthlySip(amt)}
+                className={`text-[9px] flex-1 py-0.5 rounded font-bold transition-all cursor-pointer ${
+                  monthlySip === amt
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                ₹{amt / 1000}k
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Horizon */}
@@ -156,21 +217,37 @@ export function SipCalculator({
             step="1"
             value={horizonYears}
             onChange={(e) => setHorizonYears(Number(e.target.value))}
-            className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+            className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
             <span>1 Yr</span>
             <span>15 Yrs</span>
             <span>30 Yrs</span>
           </div>
+          <div className="flex gap-1 mt-2">
+            {[3, 5, 7, 10].map((yr) => (
+              <button
+                key={yr}
+                type="button"
+                onClick={() => setHorizonYears(yr)}
+                className={`text-[9px] flex-1 py-0.5 rounded font-bold transition-all cursor-pointer ${
+                  horizonYears === yr
+                    ? 'bg-indigo-600 text-white shadow-2xs'
+                    : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {yr}Y
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Return Rate Customizers */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="p-2.5 rounded-xl bg-rose-50/50 border border-rose-200/80">
-          <span className="text-[11px] font-bold text-rose-800 block mb-1">
-            Conservative / Bad (%)
+        <div className="p-2.5 rounded-xl bg-rose-50/60 border border-rose-200/80">
+          <span className="text-[10px] font-bold text-rose-800 uppercase tracking-wider block mb-1">
+            Conservative ({badRate}%)
           </span>
           <div className="flex items-center gap-1">
             <input
@@ -186,9 +263,9 @@ export function SipCalculator({
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-sky-50/50 border border-sky-200/80">
-          <span className="text-[11px] font-bold text-sky-800 block mb-1">
-            Historical Average (%)
+        <div className="p-2.5 rounded-xl bg-sky-50/60 border border-sky-200/80">
+          <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wider block mb-1">
+            Historical Nifty ({normalRate}%)
           </span>
           <div className="flex items-center gap-1">
             <input
@@ -204,9 +281,9 @@ export function SipCalculator({
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-emerald-50/50 border border-emerald-200/80">
-          <span className="text-[11px] font-bold text-emerald-800 block mb-1">
-            High Growth (%)
+        <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
+          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block mb-1">
+            High Growth ({goodRate}%)
           </span>
           <div className="flex items-center gap-1">
             <input
@@ -227,18 +304,18 @@ export function SipCalculator({
       {finalYear && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              Total Outlay
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              Invested Outlay
             </span>
             <p className="text-xl font-black text-slate-900 mt-1 font-mono">
               {formatINR(finalYear.totalInvested)}
             </p>
-            <span className="text-[10px] text-slate-500 font-medium">Principal invested</span>
+            <span className="text-[10px] text-slate-500 font-medium">Principal committed</span>
           </div>
 
           <div className="bg-rose-50/70 border border-rose-200/80 rounded-xl p-3.5 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">
                 Bad ({badRate}%)
               </span>
               <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
@@ -256,7 +333,7 @@ export function SipCalculator({
 
           <div className="bg-sky-50/70 border border-sky-200/80 rounded-xl p-3.5 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-sky-700 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider">
                 Normal ({normalRate}%)
               </span>
               <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded">
@@ -274,7 +351,7 @@ export function SipCalculator({
 
           <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-3.5 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
                 Good ({goodRate}%)
               </span>
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
@@ -292,7 +369,7 @@ export function SipCalculator({
         </div>
       )}
 
-      {/* Recharts Area Chart with Gradient Fills */}
+      {/* Recharts Area Chart */}
       <div className="h-72 w-full bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 mb-6">
         {mounted ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -424,3 +501,4 @@ export function SipCalculator({
     </div>
   );
 }
+
