@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,7 +12,15 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { generateSipProjection, formatINR } from '@/lib/calc';
-import { Calculator, AlertTriangle } from 'lucide-react';
+import {
+  Calculator,
+  AlertTriangle,
+  Wallet,
+  Calendar,
+  Clock,
+  Sparkles,
+  ArrowUpRight,
+} from 'lucide-react';
 
 interface SipCalculatorProps {
   initialLumpSum?: number;
@@ -51,163 +59,255 @@ export function SipCalculator({
   const finalYear = data[data.length - 1];
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-xs">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-card hover:shadow-elevated transition-shadow">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-slate-100 gap-2">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
-            <Calculator className="w-4 h-4" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-slate-100 gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200/80 flex items-center justify-center text-indigo-700 shadow-2xs">
+            <Calculator className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-slate-900 tracking-wide">
-              SIP &amp; Lump Sum Growth Projection
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              SIP &amp; Lump Sum Growth Engine
             </h2>
-            <p className="text-[11px] text-slate-500">
-              Deterministic client-side compound interest engine (Annuity Due)
+            <p className="text-xs text-slate-500 font-medium">
+              Deterministic monthly compounding math &bull; Annuity Due
             </p>
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 text-[11px] font-semibold border border-amber-200 self-start sm:self-auto">
-          <AlertTriangle className="w-3 h-3 text-amber-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200/80 self-start sm:self-auto">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
           Illustrative only, not a prediction
         </div>
       </div>
 
-      {/* Input controls */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5 text-xs">
+      {/* Sliders and input controls */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 p-4 rounded-xl bg-slate-50/70 border border-slate-200/80">
+        {/* Lump Sum */}
         <div>
-          <label className="block text-slate-700 font-medium mb-1">Lump Sum (₹)</label>
+          <div className="flex items-center justify-between mb-1.5 text-xs">
+            <label className="flex items-center gap-1 font-bold text-slate-700">
+              <Wallet className="w-3.5 h-3.5 text-emerald-600" />
+              Lump Sum
+            </label>
+            <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+              {formatINR(lumpSum)}
+            </span>
+          </div>
           <input
-            type="number"
+            type="range"
             min="0"
+            max="2000000"
             step="10000"
             value={lumpSum}
-            onChange={(e) => setLumpSum(Math.max(0, Number(e.target.value)))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+            onChange={(e) => setLumpSum(Number(e.target.value))}
+            className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+            <span>₹0</span>
+            <span>₹10L</span>
+            <span>₹20L</span>
+          </div>
         </div>
 
+        {/* Monthly SIP */}
         <div>
-          <label className="block text-slate-700 font-medium mb-1">Monthly SIP (₹)</label>
+          <div className="flex items-center justify-between mb-1.5 text-xs">
+            <label className="flex items-center gap-1 font-bold text-slate-700">
+              <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+              Monthly SIP
+            </label>
+            <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+              {formatINR(monthlySip)}/mo
+            </span>
+          </div>
           <input
-            type="number"
-            min="0"
+            type="range"
+            min="1000"
+            max="150000"
             step="1000"
             value={monthlySip}
-            onChange={(e) => setMonthlySip(Math.max(0, Number(e.target.value)))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+            onChange={(e) => setMonthlySip(Number(e.target.value))}
+            className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+            <span>₹1k</span>
+            <span>₹75k</span>
+            <span>₹1.5L</span>
+          </div>
         </div>
 
+        {/* Horizon */}
         <div>
-          <label className="block text-slate-700 font-medium mb-1">Horizon (Years)</label>
+          <div className="flex items-center justify-between mb-1.5 text-xs">
+            <label className="flex items-center gap-1 font-bold text-slate-700">
+              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+              Horizon
+            </label>
+            <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+              {horizonYears} Years
+            </span>
+          </div>
           <input
-            type="number"
+            type="range"
             min="1"
-            max="40"
+            max="30"
+            step="1"
             value={horizonYears}
-            onChange={(e) => setHorizonYears(Math.max(1, Number(e.target.value)))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+            onChange={(e) => setHorizonYears(Number(e.target.value))}
+            className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
-        </div>
-
-        <div>
-          <label className="block text-rose-700 font-medium mb-1">Bad Case (%)</label>
-          <input
-            type="number"
-            min="0"
-            max="50"
-            step="0.5"
-            value={badRate}
-            onChange={(e) => setBadRate(Number(e.target.value))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-rose-500 font-mono text-[11px]"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sky-700 font-medium mb-1">Normal Case (%)</label>
-          <input
-            type="number"
-            min="0"
-            max="50"
-            step="0.5"
-            value={normalRate}
-            onChange={(e) => setNormalRate(Number(e.target.value))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500 font-mono text-[11px]"
-          />
-        </div>
-
-        <div>
-          <label className="block text-emerald-700 font-medium mb-1">Good Case (%)</label>
-          <input
-            type="number"
-            min="0"
-            max="50"
-            step="0.5"
-            value={goodRate}
-            onChange={(e) => setGoodRate(Number(e.target.value))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-500 font-mono text-[11px]"
-          />
+          <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+            <span>1 Yr</span>
+            <span>15 Yrs</span>
+            <span>30 Yrs</span>
+          </div>
         </div>
       </div>
 
-      {/* Summary KPI Cards */}
+      {/* Return Rate Customizers */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="p-2.5 rounded-xl bg-rose-50/50 border border-rose-200/80">
+          <span className="text-[11px] font-bold text-rose-800 block mb-1">
+            Conservative / Bad (%)
+          </span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min="1"
+              max="40"
+              step="0.5"
+              value={badRate}
+              onChange={(e) => setBadRate(Number(e.target.value))}
+              className="w-full bg-white border border-rose-200 rounded-lg px-2 py-1 text-rose-900 font-mono font-bold text-xs focus:outline-none"
+            />
+            <span className="text-xs font-bold text-rose-700">%</span>
+          </div>
+        </div>
+
+        <div className="p-2.5 rounded-xl bg-sky-50/50 border border-sky-200/80">
+          <span className="text-[11px] font-bold text-sky-800 block mb-1">
+            Historical Average (%)
+          </span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min="1"
+              max="40"
+              step="0.5"
+              value={normalRate}
+              onChange={(e) => setNormalRate(Number(e.target.value))}
+              className="w-full bg-white border border-sky-200 rounded-lg px-2 py-1 text-sky-900 font-mono font-bold text-xs focus:outline-none"
+            />
+            <span className="text-xs font-bold text-sky-700">%</span>
+          </div>
+        </div>
+
+        <div className="p-2.5 rounded-xl bg-emerald-50/50 border border-emerald-200/80">
+          <span className="text-[11px] font-bold text-emerald-800 block mb-1">
+            High Growth (%)
+          </span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min="1"
+              max="40"
+              step="0.5"
+              value={goodRate}
+              onChange={(e) => setGoodRate(Number(e.target.value))}
+              className="w-full bg-white border border-emerald-200 rounded-lg px-2 py-1 text-emerald-900 font-mono font-bold text-xs focus:outline-none"
+            />
+            <span className="text-xs font-bold text-emerald-700">%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
       {finalYear && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-2xs">
-            <span className="text-[11px] font-medium text-slate-500">Total Invested</span>
-            <p className="text-lg font-bold text-slate-900 mt-1">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-2xs">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+              Total Outlay
+            </span>
+            <p className="text-xl font-black text-slate-900 mt-1 font-mono">
               {formatINR(finalYear.totalInvested)}
             </p>
-            <span className="text-[10px] text-slate-500 font-medium">Over {finalYear.year} years</span>
+            <span className="text-[10px] text-slate-500 font-medium">Principal invested</span>
           </div>
 
-          <div className="bg-rose-50/70 border border-rose-200 rounded-xl p-3 shadow-2xs">
-            <span className="text-[11px] font-semibold text-rose-700">
-              Bad Outcome ({badRate}%)
-            </span>
-            <p className="text-lg font-bold text-rose-900 mt-1">
+          <div className="bg-rose-50/70 border border-rose-200/80 rounded-xl p-3.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider">
+                Bad ({badRate}%)
+              </span>
+              <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
+                {(finalYear.badCase / Math.max(1, finalYear.totalInvested)).toFixed(1)}x
+              </span>
+            </div>
+            <p className="text-xl font-black text-rose-950 mt-1 font-mono">
               {formatINR(finalYear.badCase)}
             </p>
-            <span className="text-[10px] text-rose-600 font-medium">
-              +{(finalYear.badCase - finalYear.totalInvested > 0 ? '+' : '')}
-              {formatINR(finalYear.badCase - finalYear.totalInvested)} gain
+            <span className="text-[10px] text-rose-600 font-medium flex items-center gap-0.5">
+              <ArrowUpRight className="w-2.5 h-2.5" />
+              +{formatINR(Math.max(0, finalYear.badCase - finalYear.totalInvested))} gain
             </span>
           </div>
 
-          <div className="bg-sky-50/70 border border-sky-200 rounded-xl p-3 shadow-2xs">
-            <span className="text-[11px] font-semibold text-sky-700">
-              Normal Outcome ({normalRate}%)
-            </span>
-            <p className="text-lg font-bold text-sky-900 mt-1">
+          <div className="bg-sky-50/70 border border-sky-200/80 rounded-xl p-3.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-sky-700 uppercase tracking-wider">
+                Normal ({normalRate}%)
+              </span>
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded">
+                {(finalYear.normalCase / Math.max(1, finalYear.totalInvested)).toFixed(1)}x
+              </span>
+            </div>
+            <p className="text-xl font-black text-sky-950 mt-1 font-mono">
               {formatINR(finalYear.normalCase)}
             </p>
-            <span className="text-[10px] text-sky-600 font-medium">
-              +{formatINR(finalYear.normalCase - finalYear.totalInvested)} gain
+            <span className="text-[10px] text-sky-600 font-medium flex items-center gap-0.5">
+              <ArrowUpRight className="w-2.5 h-2.5" />
+              +{formatINR(Math.max(0, finalYear.normalCase - finalYear.totalInvested))} gain
             </span>
           </div>
 
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3 shadow-2xs">
-            <span className="text-[11px] font-semibold text-emerald-700">
-              Good Outcome ({goodRate}%)
-            </span>
-            <p className="text-lg font-bold text-emerald-900 mt-1">
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-3.5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
+                Good ({goodRate}%)
+              </span>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                {(finalYear.goodCase / Math.max(1, finalYear.totalInvested)).toFixed(1)}x
+              </span>
+            </div>
+            <p className="text-xl font-black text-emerald-950 mt-1 font-mono">
               {formatINR(finalYear.goodCase)}
             </p>
-            <span className="text-[10px] text-emerald-600 font-medium">
-              +{formatINR(finalYear.goodCase - finalYear.totalInvested)} gain
+            <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
+              <ArrowUpRight className="w-2.5 h-2.5" />
+              +{formatINR(Math.max(0, finalYear.goodCase - finalYear.totalInvested))} gain
             </span>
           </div>
         </div>
       )}
 
-      {/* Recharts Line Chart */}
-      <div className="h-64 w-full bg-slate-50/80 border border-slate-200 rounded-xl p-3 mb-5">
+      {/* Recharts Area Chart with Gradient Fills */}
+      <div className="h-72 w-full bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 mb-6">
         {mounted ? (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, right: 20, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <AreaChart data={data} margin={{ top: 10, right: 20, left: 20, bottom: 5 }}>
+              <defs>
+                <linearGradient id="colorGood" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id="colorNormal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0284c7" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis
                 dataKey="year"
                 stroke="#64748b"
@@ -217,14 +317,18 @@ export function SipCalculator({
               <YAxis
                 stroke="#64748b"
                 fontSize={11}
-                tickFormatter={(val) => `₹${(val / 100000).toFixed(1)}L`}
+                tickFormatter={(val) =>
+                  val >= 10000000
+                    ? `₹${(val / 10000000).toFixed(1)}Cr`
+                    : `₹${(val / 100000).toFixed(0)}L`
+                }
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   borderColor: '#cbd5e1',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                   fontSize: '12px',
                   color: '#0f172a',
                 }}
@@ -235,46 +339,49 @@ export function SipCalculator({
                 labelFormatter={(label) => `Year ${label}`}
               />
               <Legend
-                wrapperStyle={{ fontSize: '11px', paddingTop: '6px' }}
+                wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
                 iconType="circle"
               />
-              <Line
-                type="monotone"
-                dataKey="totalInvested"
-                name="Total Invested"
-                stroke="#64748b"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="badCase"
-                name={`Bad Case (${badRate}%)`}
-                stroke="#e11d48"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="normalCase"
-                name={`Normal Case (${normalRate}%)`}
-                stroke="#0284c7"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="goodCase"
                 name={`Good Case (${goodRate}%)`}
                 stroke="#059669"
                 strokeWidth={2.5}
-                dot={false}
+                fillOpacity={1}
+                fill="url(#colorGood)"
               />
-            </LineChart>
+              <Area
+                type="monotone"
+                dataKey="normalCase"
+                name={`Normal Case (${normalRate}%)`}
+                stroke="#0284c7"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorNormal)"
+              />
+              <Area
+                type="monotone"
+                dataKey="badCase"
+                name={`Bad Case (${badRate}%)`}
+                stroke="#e11d48"
+                strokeWidth={1.5}
+                fill="transparent"
+              />
+              <Area
+                type="monotone"
+                dataKey="totalInvested"
+                name="Total Invested"
+                stroke="#64748b"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                fill="transparent"
+              />
+            </AreaChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-slate-500">
-            Loading interactive chart...
+            Rendering interactive chart...
           </div>
         )}
       </div>
@@ -284,23 +391,29 @@ export function SipCalculator({
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200">
             <tr>
-              <th className="py-2.5 px-3 font-semibold">Year</th>
-              <th className="py-2.5 px-3 font-semibold">Invested Amount</th>
-              <th className="py-2.5 px-3 text-rose-700 font-semibold">Bad ({badRate}%)</th>
-              <th className="py-2.5 px-3 text-sky-700 font-semibold">Normal ({normalRate}%)</th>
-              <th className="py-2.5 px-3 text-emerald-700 font-semibold">Good ({goodRate}%)</th>
+              <th className="py-2.5 px-3.5 font-bold">Timeline</th>
+              <th className="py-2.5 px-3.5 font-bold">Invested Capital</th>
+              <th className="py-2.5 px-3.5 text-rose-700 font-bold">Conservative ({badRate}%)</th>
+              <th className="py-2.5 px-3.5 text-sky-700 font-bold">Average ({normalRate}%)</th>
+              <th className="py-2.5 px-3.5 text-emerald-700 font-bold">High Growth ({goodRate}%)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-mono text-[11px] bg-white">
             {data.map((row) => (
-              <tr key={row.year} className="hover:bg-slate-50 transition-colors">
-                <td className="py-2 px-3 font-sans text-slate-800 font-medium">
-                  {row.year === 0 ? 'Start (Yr 0)' : `Year ${row.year}`}
+              <tr key={row.year} className="hover:bg-slate-50/80 transition-colors">
+                <td className="py-2 px-3.5 font-sans text-slate-900 font-bold">
+                  {row.year === 0 ? 'Start (Day 1)' : `Year ${row.year}`}
                 </td>
-                <td className="py-2 px-3 text-slate-700">{formatINR(row.totalInvested)}</td>
-                <td className="py-2 px-3 text-rose-700">{formatINR(row.badCase)}</td>
-                <td className="py-2 px-3 text-sky-700">{formatINR(row.normalCase)}</td>
-                <td className="py-2 px-3 text-emerald-700 font-bold">
+                <td className="py-2 px-3.5 text-slate-700 font-medium">
+                  {formatINR(row.totalInvested)}
+                </td>
+                <td className="py-2 px-3.5 text-rose-700 font-semibold">
+                  {formatINR(row.badCase)}
+                </td>
+                <td className="py-2 px-3.5 text-sky-700 font-semibold">
+                  {formatINR(row.normalCase)}
+                </td>
+                <td className="py-2 px-3.5 text-emerald-700 font-bold">
                   {formatINR(row.goodCase)}
                 </td>
               </tr>
