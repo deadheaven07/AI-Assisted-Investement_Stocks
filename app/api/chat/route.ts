@@ -4,6 +4,8 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { streamStockChat } from '@/lib/gemini';
 import { getMarketDataProvider } from '@/lib/data/provider';
 
+export const dynamic = 'force-dynamic';
+
 const ChatRequestSchema = z.object({
   messages: z.array(
     z.object({

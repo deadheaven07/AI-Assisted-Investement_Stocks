@@ -207,8 +207,9 @@ export default function Home() {
   const triggerStockAnalysis = (stock: LiveStock | ScreenerStock) => {
     setActiveTab('chat');
     const priceText = typeof stock.price === 'number' ? `₹${stock.price.toFixed(2)}` : stock.price;
+    const ticker = 'sym' in stock ? stock.sym : stock.symbol;
     setExternalQuery(
-      `Analyze ${stock.sym || (stock as LiveStock).symbol} (${stock.name}): Current live price is ${priceText}. Verify dividend yield (${stock.yield}), payout safety (${stock.payout}), P/E valuation (${stock.pe}), and recommend a buying schedule.`
+      `Analyze ${ticker} (${stock.name}): Current live price is ${priceText}. Verify dividend yield (${stock.yield}), payout safety (${stock.payout}), P/E valuation (${stock.pe}), and recommend a buying schedule.`
     );
     setTimeout(() => setExternalQuery(undefined), 100);
   };
