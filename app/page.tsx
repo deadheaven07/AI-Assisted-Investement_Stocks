@@ -11,7 +11,6 @@ import {
   MessageSquare,
   ShieldCheck,
   Building2,
-  ExternalLink,
 } from 'lucide-react';
 
 export default function Home() {
@@ -19,36 +18,36 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'chat' | 'calculator'>('chat');
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-slate-50/60 text-slate-900 flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900">
       {/* Top Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20">
-              <TrendingUp className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-600/20">
+              <TrendingUp className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-white tracking-tight">Stock Desk</h1>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <h1 className="text-base font-bold text-slate-900 tracking-tight">Stock Desk</h1>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                   NSE / BSE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Quantitative Research & Dividend Investing Assistant
+              <p className="text-[11px] text-slate-500 hidden sm:block font-normal">
+                Quantitative Research &amp; Dividend Investing Assistant
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* View Switcher Tabs */}
-            <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg flex gap-1">
+            <div className="bg-slate-100 border border-slate-200/80 p-1 rounded-xl flex gap-1">
               <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === 'chat'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
@@ -56,10 +55,10 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveTab('calculator')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === 'calculator'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
@@ -67,8 +66,8 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="hidden lg:flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400">
-              <Building2 className="w-3 h-3 text-emerald-400" />
+            <div className="hidden lg:flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
+              <Building2 className="w-3 h-3 text-emerald-600" />
               <span>Data Layer: Active</span>
             </div>
           </div>
@@ -83,9 +82,9 @@ export default function Home() {
             <ProfileForm onProfileChange={(p) => setProfile(p)} />
 
             {/* Quick Stocks Card */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 text-xs">
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
-                <span className="font-semibold text-slate-200">Monitored Indian Stocks</span>
+            <div className="bg-white border border-slate-200/80 rounded-xl p-4 text-xs shadow-xs">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-800">Monitored Indian Stocks</span>
                 <span className="text-[10px] text-slate-400">Structured Feeds</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -99,14 +98,16 @@ export default function Home() {
                 ].map((s) => (
                   <div
                     key={s.sym}
-                    className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition-colors"
+                    className="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all shadow-2xs"
                   >
-                    <div className="flex items-center justify-between font-bold text-white">
+                    <div className="flex items-center justify-between font-bold text-slate-900">
                       <span>{s.sym}</span>
-                      <span className="text-emerald-400 text-[11px] font-mono">{s.yield}</span>
+                      <span className="text-emerald-600 text-[11px] font-mono font-semibold">
+                        {s.yield}
+                      </span>
                     </div>
-                    <div className="text-[10px] text-slate-400 truncate">{s.name}</div>
-                    <div className="text-[9px] text-slate-500 mt-1">{s.tag}</div>
+                    <div className="text-[10px] text-slate-500 truncate mt-0.5">{s.name}</div>
+                    <div className="text-[9px] text-slate-400 mt-1 font-medium">{s.tag}</div>
                   </div>
                 ))}
               </div>
@@ -129,10 +130,10 @@ export default function Home() {
       </main>
 
       {/* Persistent SEBI Disclaimer Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-4 px-4 text-center text-xs text-slate-400">
+      <footer className="border-t border-slate-200 bg-white py-4 px-4 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="flex items-center gap-1.5 text-slate-600">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>
               <strong>Educational Information Only</strong>, not investment advice. Not SEBI-registered. Verify all data on NSE/BSE before investing.
             </span>

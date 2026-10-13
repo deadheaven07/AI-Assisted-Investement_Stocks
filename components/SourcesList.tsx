@@ -14,18 +14,18 @@ export function SourcesList({ sources }: SourcesListProps) {
   if (!sources || sources.length === 0) return null;
 
   return (
-    <div className="mt-3 pt-3 border-t border-slate-800/80 text-xs">
+    <div className="mt-3 pt-3 border-t border-slate-200 text-xs">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-400 transition-colors font-medium cursor-pointer"
+        className="flex items-center gap-1.5 text-slate-600 hover:text-emerald-700 transition-colors font-medium cursor-pointer"
         aria-expanded={isOpen}
       >
-        <Database className="w-3.5 h-3.5 text-emerald-400" />
+        <Database className="w-3.5 h-3.5 text-emerald-600" />
         <span>Verified Sources & Tool Logs ({sources.length})</span>
         {isOpen ? (
-          <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+          <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
         ) : (
-          <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+          <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
         )}
       </button>
 
@@ -36,11 +36,11 @@ export function SourcesList({ sources }: SourcesListProps) {
             return (
               <div
                 key={idx}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300 hover:border-emerald-500/40 transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 hover:border-emerald-400 transition-colors shadow-2xs"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 {isLocalTool ? (
-                  <span className="font-mono text-[11px] text-slate-300">
+                  <span className="font-mono text-[11px] text-slate-700 font-medium">
                     {source.title}
                   </span>
                 ) : (
@@ -48,7 +48,7 @@ export function SourcesList({ sources }: SourcesListProps) {
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-emerald-400 hover:underline max-w-[280px] truncate"
+                    className="inline-flex items-center gap-1 text-emerald-700 hover:underline max-w-[280px] truncate font-medium"
                   >
                     <span>{source.title}</span>
                     <ExternalLink className="w-2.5 h-2.5 shrink-0" />
